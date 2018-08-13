@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CountUp</title>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+	//$(".count").css('line-height',$(window).height());
+	$(".count").height($(window).height());
+	$(".count").width($(window).width());
+	$(window).resize(function(){
+		$(".count").height($(window).height());
+		$(".count").width($(window).width());
+	});
+});
+
+$(function(){
+    var countElm = $('.count'),
+    countSpeed = 42;
+
+    countElm.each(function(){
+        var self = $(this),
+        countMax = self.attr('data-num'),
+        thisCount = self.text(),
+        countTimer;
+
+        function timer(){
+            countTimer = setInterval(function(){
+                var countNext = thisCount++;
+                self.text(countNext);
+
+                if(countNext == countMax){
+                    clearInterval(countTimer);
+                }
+            },countSpeed);
+        }
+        timer();
+    });
+
+});</script>
+
+</head>
+
+<body style='background-color:black;'>
+<div class="count" data-num="2189" style='color:white; text-align:center; display:table-cell; vertical-align:middle; font-size:50px'>0</div>
+</body>
+</html>
