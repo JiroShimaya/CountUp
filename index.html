@@ -5,52 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CountUp</title>
 
-
+<!-- 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+-->
+<!-- <script src="jquery/ajax-1.7.0-jquery.min.js"></script> -->
+<script src="jquery/jquery-1.11.0.min.js"></script>
 <script type="text/javascript">
+;(function($){
+	  $.fn.counter = function(options){
+	    var defaults = {
+	      'start': 0,
+	      'end': 0,
+	      'easing': 'swing',
+	      'duration': 400
+	    };
+	    var settings = $.extend( {}, defaults, options );
+	 
+	    return this.each(function(){
+	      var self = $(this);
+	 
+	      $({count: settings.start}).animate({
+	        count: settings.end
+	      },{
+	        easing: settings.easing,
+	        duration: settings.duration,
+	        step: function() {
+	          self.text(Math.ceil(this.count));
+	        }
+	      });
+	    });
+	  };
+	}(jQuery));
 
-$(document).ready(function(){
-	//$(".count").css('line-height',$(window).height());
-	$(".count").height($(window).height());
-	$(".count").width($(window).width());
-	$(window).resize(function(){
-		$(".count").height($(window).height());
-		$(".count").width($(window).width());
-	});
-});
-
-$(function(){
-    var countElm = $('.count'),
-    countSpeed = 42;
-
-    countElm.each(function(){
-        var self = $(this),
-        countMax = self.attr('data-num'),
-        thisCount = self.text(),
-        countTimer;
-
-        function timer(){
-            countTimer = setInterval(function(){
-                var countNext = thisCount++;
-                self.text(countNext);
-
-                if(countNext == countMax){
-                    clearInterval(countTimer);
-                }
-            },countSpeed);
-        }
-        timer();
-    });
-
-});</script>
-
+</script>
 </head>
 
-<body style='background-color:black;'>
-<div class="count" data-num="2189" style='color:white; text-align:center; display:table-cell; vertical-align:middle; font-size:50px'>0</div>
+<body>
+<span id="counter">0</span>
+<input type="button" id="start" value="START">
 </body>
+<script type="text/javascript">
+$(function(){
+	  $('#start').on('click', function(){
+	    $('#counter').counter({
+	      'start': 0,
+	      'end': 1000,
+	      'easing': 'easeInOuthQuart',
+	      'duration': 1500
+	    });
+	  });
+	});
+
+</script>
 </html>
