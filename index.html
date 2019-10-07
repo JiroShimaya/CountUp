@@ -4,75 +4,99 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CountUp</title>
-
-<!-- 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
--->
-<!-- <script src="jquery/ajax-1.7.0-jquery.min.js"></script> -->
 <script src="jquery/jquery-1.11.0.min.js"></script>
-<script src="jquery/jquery.easing.1.3.js"></script>
-<script type="text/javascript">
-;(function($){
-	  $.fn.counter = function(options){
-	    var defaults = {
-	      'start': 0,
-	      'end': 0,
-	      'easing': 'swing',
-	      'duration': 400
-	    };
-	    var settings = $.extend( {}, defaults, options );
-	 
-	    return this.each(function(){
-	      var self = $(this);
-	 
-	      $({count: settings.start}).animate({
-	        count: settings.end
-	      },{
-	        easing: settings.easing,
-	        duration: settings.duration,
-	        step: function() {
-	          self.text(Math.ceil(this.count));
-	        }
-	      });
-	    });
-	  };
-	}(jQuery));
-	
-function start(){
-    $('#counter').counter({
-	      'start': 0,
-	      'end': 2189,
-	      'easing': 'easeInOutQuart',
-	      'duration': 92000
-	    });	
-}
-
-
-</script>
 </head>
-
-<body style="background-color:black; overflow:hidden;">
-<div id="counter" style='color:gray; text-align:center; display:table-cell; vertical-align:middle; font-size:100px; font-family:"Times New Roman";'>0</div>
+<body>
+<div class="count">0</div>
 </body>
+
+ 
 <script type="text/javascript">
-$("#counter").height($(window).height());
-$("#counter").width($(window).width());
+(function(){
+	
+	//各種変数の設定
+	//見た目に関する部分
+	const textColor = "gray",
+		backgroundColor = "black",
+		fontSize = "100px"
+		;
+	//各種変数の設定
+	//カウントアップの速度などに関する部分
+	let interval = 1000; //カウントアップの間隔(ms)。この数字が大きいほど遅く、小さいほど早くカウントアップする
+	const	brake = 0.99, //カウントアップとともに間隔を大きくする程度。
+					//1より小さいとをintervalMinを下回らない範囲でだんだん間隔が小さくなる。
+					//1より大きいとintervalMaxを上回らない範囲でだんだん間隔が大きくなる
+		intervalMin = 42, //intervalの取りうる最小値
+		intervalMax = 1000, //intervalの取りうる最大値
+		countMin = 0, //カウント開始の数
+		countMax = 200//カウント終了の数
+		;
+	
+	
+	//背景(body)要素を取得
+	const body = $("body");
+	//背景色の指定
+	body.css("background-color",backgroundColor);
+	//スクロールバーを隠す
+	body.css("overflow","hidden");
 
-$(window).resize(function(){
-	$("#counter").height($(window).height());
-	$("#counter").width($(window).width());
-});
+	//count表示領域要素の取得
+	const count = $(".count");
+	//領域をwindowいっぱいに表示する
+	count.height($(window).height());
+	count.width($(window).width());
+	//文字色の指定
+	count.css("color",textColor);
+	//文字を真ん中に表示するための指定
+	count.css("text-align","center");//左右中央寄せ
+	count.css("display","table-cell");//上下中央寄せのために表示方法を表形式する
+	count.css("vertical-align","middle");//上下中央寄せ
+	//フォントサイズの指定
+	count.css("font-size",fontSize);
 
-
-$(function(){
-	$(window).on('keydown',function(){
-		start();
-	})
-});
+	//windowをリサイズしたときに文字が中央に表示され直すようにする
+	$(window).resize(function(){
+		count.height($(window).height());
+		count.width($(window).width());
+	});
+	
+	
+	//初期値の表示
+	count.html(countMin);
+	
+	//各数字ごとのカウントアップの間隔を格納するリスト
+	const countlist = [0];
+	//最初のカウントアップまでの秒数はintervalとwaitの和
+	
+	for(let i=countMin; i<countMax; i++){
+		if(brake == 1){
+			//brakeが1なら何もしない
+		}
+		else if(brake>1){
+			if(interval < intervalMax){
+				interval *= brake;//intervalが上限値より小さいならbrakeをかける
+				if(interval > intervalMax)
+					interval = intervalMax;//brakeをかけた結果intervalMaxより大きくなってしまったらintervalMaxにする
+			}				 
+		}else{
+			if(interval > intervalMin){
+				interval *= brake;//brake<1でintervalが下限値より大きい小さいならbrakeをかける
+				if(interval < intervalMin)
+					interval = intervalMin;
+			}
+		}
+		countlist.push(countlist[countlist.length-1]+interval);
+	}
+	console.log(countlist);
+	
+	for(let waittime of countlist){
+		if(waittime == 0)continue;
+		setTimeout(()=>{
+			count.html(Number(count.html())+1);
+		},waittime);
+	}
+})();
 
 </script>
+
 </html>
