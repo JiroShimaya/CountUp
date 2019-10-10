@@ -15,21 +15,19 @@
 (function(){
 	
 	//各種変数の設定
+	//カウントアップの速度を変化させる式に関する部分
+	let velocity = 100; //カウントアップの速度の初期値(1/s)。この数字が大きいほど速く、小さいほど遅くカウントアップする
+	const	acceleration = 0, //加速度(1/s^2)。この値が大きいほどカウントアップの速度が急激に早くなっていく。負の場合、減速する
+		resistance = 0 //抵抗力(1/s)。この値に速度を乗じた値が加速度の絶対値を小さくするように加速度に加算される
+		;
+	//カウント開始と終了の数
+	const countMin = 0, //カウント開始の数
+		countMax = 20//カウント終了の数
+		;
 	//見た目に関する部分
 	const textColor = "gray",
 		backgroundColor = "black",
 		fontSize = "100px"
-		;
-	//各種変数の設定
-	//カウントアップの速度などに関する部分
-	let interval = 1000; //カウントアップの間隔(ms)。この数字が大きいほど遅く、小さいほど早くカウントアップする
-	const	brake = 0.99, //カウントアップとともに間隔を大きくする程度。
-					//1より小さいとをintervalMinを下回らない範囲でだんだん間隔が小さくなる。
-					//1より大きいとintervalMaxを上回らない範囲でだんだん間隔が大きくなる
-		intervalMin = 42, //intervalの取りうる最小値
-		intervalMax = 1000, //intervalの取りうる最大値
-		countMin = 0, //カウント開始の数
-		countMax = 200//カウント終了の数
 		;
 	
 	
@@ -64,33 +62,31 @@
 	//初期値の表示
 	count.html(countMin);
 	
-	//各数字ごとのカウントアップの間隔を格納するリスト
-	const countlist = [0];
-	//最初のカウントアップまでの秒数はintervalとwaitの和
-	
-	for(let i=countMin; i<countMax; i++){
-		if(brake == 1){
-			//brakeが1なら何もしない
+	//各数字ごとのカウントアップの速度を格納するリスト
+	const countlist = [velocity];
+	const initsign = (acceleration-velocity*resistance);
+	for(let i=countMin; i<countMax-1; i++){
+		const diff = acceleration-velocity*resistance;
+		if(initsign*diff>0){
+			velocity += diff;
 		}
-		else if(brake>1){
-			if(interval < intervalMax){
-				interval *= brake;//intervalが上限値より小さいならbrakeをかける
-				if(interval > intervalMax)
-					interval = intervalMax;//brakeをかけた結果intervalMaxより大きくなってしまったらintervalMaxにする
-			}				 
-		}else{
-			if(interval > intervalMin){
-				interval *= brake;//brake<1でintervalが下限値より大きい小さいならbrakeをかける
-				if(interval < intervalMin)
-					interval = intervalMin;
-			}
-		}
-		countlist.push(countlist[countlist.length-1]+interval);
+		if(velocity>0)
+			countlist.push(velocity);
 	}
 	console.log(countlist);
+	//速度をinterval (ms) になおす
+	const intervallist = countlist.reduce((prev,v)=>{
+		if(v==0){
+			
+		}else{
+			const last = prev[prev.length-1];
+			prev.push(last+(1/v)*1000);
+			return prev;
+		}
+	},[0]);
+	intervallist.shift();
 	
-	for(let waittime of countlist){
-		if(waittime == 0)continue;
+	for(let waittime of intervallist){
 		setTimeout(()=>{
 			count.html(Number(count.html())+1);
 		},waittime);
