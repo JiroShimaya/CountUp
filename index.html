@@ -7,30 +7,27 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 </head>
 <body>
-<div class="count">0</div>
+<div class="count"></div>
 </body>
-
- 
 <script type="text/javascript">
 (function(){
 	
 	//各種変数の設定
 	//カウントアップの速度を変化させる式に関する部分
-	let velocity = 100; //カウントアップの速度の初期値(1/s)。この数字が大きいほど速く、小さいほど遅くカウントアップする
-	const	acceleration = 0, //加速度(1/s^2)。この値が大きいほどカウントアップの速度が急激に早くなっていく。負の場合、減速する
-		resistance = 0 //抵抗力(1/s)。この値に速度を乗じた値が加速度の絶対値を小さくするように加速度に加算される
+	let velocity = 1; //カウントアップの速度の初期値(1/s)。この数字が大きいほど速く、小さいほど遅くカウントアップする
+	const acceleration = 4, //加速度(1/s^2)。この値が大きいほどカウントアップの速度が急激に早くなっていく。負の場合、減速する
+		resistance = 0.1 //抵抗力(1/s)。この値に速度を乗じた値が加速度の絶対値を小さくするように加速度に加算される
 		;
 	//カウント開始と終了の数
 	const countMin = 0, //カウント開始の数
-		countMax = 20//カウント終了の数
+		countMax = 2000//カウント終了の数
 		;
 	//見た目に関する部分
-	const textColor = "gray",
-		backgroundColor = "black",
-		fontSize = "100px"
+	const textColor = "gray",//文字色
+		backgroundColor = "black",//背景色
+		fontSize = "100px"//フォントサイズ
 		;
-	
-	
+		
 	//背景(body)要素を取得
 	const body = $("body");
 	//背景色の指定
@@ -58,41 +55,42 @@
 		count.width($(window).width());
 	});
 	
-	
 	//初期値の表示
 	count.html(countMin);
 	
-	//各数字ごとのカウントアップの速度を格納するリスト
-	const countlist = [velocity];
-	const initsign = (acceleration-velocity*resistance);
+	//各数字ごとのカウントアップの速度を計算し、リストに格納する
+	const velocitylist = [velocity];//ステップごとの速度のリスト
+	const initsign = (acceleration-velocity*resistance);//加速する運動か減速する運動か(正/負値であれば加速/減速)
 	for(let i=countMin; i<countMax-1; i++){
-		const diff = acceleration-velocity*resistance;
-		if(initsign*diff>0){
-			velocity += diff;
-		}
-		if(velocity>0)
-			countlist.push(velocity);
+		//速度の変化量(1ステップにかかる時間はおよそ1/velocityなのでそれを乗じている)
+		const diff = (acceleration-velocity*resistance)/velocity;
+		//速度の変化が初期状態と逆方向になったら(e.g.加速から減速に転じたら)、
+		//終端速度に達したとみなしてループを抜ける
+		if(initsign*diff<0)break;
+		//変化後の速度が非正値であればその時点で運動が停止したと見なせるのでループを抜ける
+		if(velocity + diff <= 0)break;
+		//上記以外の状況であれば速度を変化させリストに加える
+		velocity += diff;
+		velocitylist.push(velocity);
 	}
-	console.log(countlist);
+	console.log(velocitylist);
 	//速度をinterval (ms) になおす
-	const intervallist = countlist.reduce((prev,v)=>{
-		if(v==0){
-			
-		}else{
+	const intervallist = velocitylist.reduce((prev,v)=>{
+		if(v>0){
 			const last = prev[prev.length-1];
 			prev.push(last+(1/v)*1000);
 			return prev;
 		}
 	},[0]);
+	//最初の0は作業用の値なので削除する
 	intervallist.shift();
 	
+	//計算したintervalにしたがって数字を変化させる
 	for(let waittime of intervallist){
 		setTimeout(()=>{
 			count.html(Number(count.html())+1);
 		},waittime);
 	}
 })();
-
 </script>
-
 </html>
